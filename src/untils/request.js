@@ -4,6 +4,7 @@
  */
 import axios from 'axios'
 import JSONBig from 'json-bigint' // 引入大数字的包
+import store from '@/store' // 引入vuex中的实例对象 相当于组件中的this.$store
 // axios.defaults 是对原有默认进行修改
 // axios.creat() 相当于 new了一个新的axios实例
 const instance = axios.create({
@@ -18,4 +19,19 @@ const instance = axios.create({
   }]
 
 }) // 创建一个axios的新实例
+// token的注入  应该在请求之前啊 也就是请求拦截器
+// instance是一个新的axios实例
+instance.interceptors.request.use(function (config) {
+  // 成功的时候 如何处理
+  // 读取配置信息 给配置信息中注入token
+  if (store.state.user.token) {
+    config.headers.Authorization = `Bearer ${store.state.user.token}` // 将token 统一注入到headers中
+  }
+  // 不用 if else的用法
+  // config.headers.Authorization && (config.headers.Authorization = `Bearer ${store.state.user.token}`) // 将token 统一注入到headers中
+  return config // 返回配置
+}, function (error) {
+  // 直接返回 promise的错误
+  return Promise.reject(error) // 返回错误 这样的话会直接进入到axios的catch中
+})
 export default instance
