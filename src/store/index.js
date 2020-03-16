@@ -4,7 +4,7 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as auth from '@/utils/auth'
+import * as auth from '@/untils/auth'
 Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
