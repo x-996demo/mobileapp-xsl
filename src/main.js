@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import '@/premission'
+import '@/premission' // 引入premission组件
 import store from './store'
 import Vant from 'vant' // 引入vant组件
-import 'vant/lib/index.css' // 引入vant组件样式
+import 'vant/lib/index.less' // 引入vant组件样式 这里改成less 因为我们想改变样式
 import 'amfe-flexible'
 import '@/styles/index.less' // 引入自定义的样式 覆盖vant的样式
 Vue.config.productionTip = false
