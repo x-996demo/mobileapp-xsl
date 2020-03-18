@@ -77,7 +77,9 @@ export default {
     // 登录校验
     async  login () {
       //  校验手机号和验证码
-      if (this.checkMobile() && this.checkCode()) {
+      const validateMobile = this.checkMobile()
+      const validateCode = this.checkCode()
+      if (validateMobile && validateCode) {
         // 如果两个检查都是true 就表示通过 了校验
         // 校验通过之后 要去调用接口 看看用户名和密码正确与否
         // axios 但是后端接口 不论你成功或者失败 它返回的状态码都是200
