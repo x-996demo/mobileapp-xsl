@@ -56,6 +56,19 @@ export default {
     // 如果到了这个位置 说明校验通过
     this.errorMessage.mobile = '' // 因为通过了 就没有消息了
     return true
+  },
+  // 检查验证码
+  checkCode () {
+    if (!this.loginForm.code) {
+      this.errorMessage.code = '验证码不能为空'
+      return false
+    }
+    if (!/^\d{6}$/.test(this.loginForm.code)) {
+      this.errorMessage.code = '验证码必须为6位数字'
+      return false
+    }
+    this.errorMessage.code = ''
+    return true
   }
 }
 </script>
