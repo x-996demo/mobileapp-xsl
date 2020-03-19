@@ -8,6 +8,8 @@
       <!-- van-list组件 如果不加干涉, 初始化完毕 就会检测 自己距离底部的长度,如果超过了限定 ,就会执行 load事件  自动把
        绑定的 loading 变成true
       -->
+       <!-- 下拉刷新组件包裹 列表组件 -->
+    <van-pull-refresh v-model="downLoading" @refresh="onRefresh" :success-text="successText">
     <van-list finished-text='没有了' v-model="upLoading" :finished="finished" @load="onLoad">
       <!-- 循环内容 -->
       <van-cell-group>
@@ -15,6 +17,7 @@
       </van-cell-group>
 
     </van-list>
+     </van-pull-refresh>
   </div>
 </template>
 
@@ -22,6 +25,8 @@
 export default {
   data () {
     return {
+      successText: '', // 刷新成功的文本
+      downLoading: false, // 下载刷新状态 表示是否正在下拉刷新
       upLoading: false, // 表示是否开启了上拉加载 默认值false
       finished: false, // 表示 是否已经完成所有数据的加载
       articles: [] // 文章列表
@@ -50,6 +55,17 @@ export default {
       // setTimeout(() => {
       //   this.finished = true // 表示 数据已经全部加载完毕 没有数据了
       // }, 1000) // 等待一秒 然后关闭加载状态
+    },
+    onRefresh () {
+      setTimeout(() => {
+      // 下拉刷新 表示要读取最新的数据 而且最新的数据要添加到数据头部
+        const arr = Array.from(Array(2), (value, index) => '追加' + (index + 1))
+        // 数组添加到头部
+        this.articles.unshift(...arr)
+        // 手动关闭正在加载的状态
+        this.downLoading = false
+        this.successText = `更新了${arr.length}条数据`
+      }, 1000)
     }
   }
 
