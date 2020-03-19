@@ -12,7 +12,7 @@
                 <van-cell title="标题" value="内容" :key="item" v-for="item in 20"></van-cell>
               </van-cell-group>
             </div> -->
-           <ArticleList></ArticleList>
+           <ArticleList :channel_id="item.id"></ArticleList>
          </van-tab>
       </van-tabs>
       <!-- 在tabs下放置图标  编辑频道的图标 -->
