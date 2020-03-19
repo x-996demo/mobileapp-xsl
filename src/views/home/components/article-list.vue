@@ -13,6 +13,7 @@
       <van-list finished-text="没有了" v-model="upLoading" :finished="finished" @load="onLoad">
         <!-- 循环内容 -->
         <van-cell-group>
+          <!-- item.art_id 此时是一个大数字的对象 v-for 的key需要用字符串或者数字代理 -->
           <van-cell v-for="item in articles" :key="item.art_id.toString()">
             <!-- 放置元素 文章列表的循环项  无图  单图  三图 -->
             <div class="article_item">
@@ -49,6 +50,7 @@
 </template>
 
 <script>
+// 引入获取文章的模块
 import { getArticles } from '@/api/articles'
 export default {
   data () {
@@ -58,9 +60,11 @@ export default {
       upLoading: false, // 表示是否开启了上拉加载 默认值false
       finished: false, // 表示 是否已经完成所有数据的加载
       articles: [], // 文章列表
-      timestamp: null // 定义一个时间戳属性 用来存储历史时间戳
+      timestamp: null // 定义一个时间戳属性 用来存储 历史时间戳
     }
   },
+  //  props: ['channel_id'], // 字符串数组 接收方式 比较简单 易于上手
+
   // props 对象形式 可以约束传入的值 必填 传值类型
   props: {
     // key(props属性名): value(对象 配置)
@@ -71,7 +75,8 @@ export default {
     }
   },
   methods: {
-    // onload 是会自动执行的
+    // onLoad 是会自动执行
+    // 上拉加载
     async onLoad () {
       console.log('开始加载文章列表数据')
       // 如果你的数据已经加载完毕 你应该把finished 设置为true 表示一切结束了 不再请求
@@ -92,13 +97,6 @@ export default {
       //   this.upLoading = false
       // }
 
-      // 下面这么写 依然不能关掉加载状态 为什么 ? 因为关掉之后  检测机制  高度还是不够 还是会开启
-      // 如果你有数据 你应该 把数据到加到list中
-      // 如果想关掉
-      // setTimeout(() => {
-      //   this.finished = true // 表示 数据已经全部加载完毕 没有数据了
-      // }, 1000) // 等待一秒 然后关闭加载状态
-      // this.timestamp || Date.now()  如果有历史时间戳 用历史时间戳 否则用当前的时间戳
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() }) // this.channel_id指的是 当前的频道id
       //  获取内容
       this.articles.push(...data.results) // 将数据追加到队尾
@@ -113,19 +111,44 @@ export default {
         this.finished = true
       }
     },
-    onRefresh () {
-      setTimeout(() => {
-        // 下拉刷新 表示要读取最新的数据 而且最新的数据要添加到数据头部
-        const arr = Array.from(
-          Array(2),
-          (value, index) => '追加' + (index + 1)
-        )
-        // 数组添加到头部
-        this.articles.unshift(...arr)
-        // 手动关闭正在加载的状态
-        this.downLoading = false
-        this.successText = `更新了${arr.length}条数据`
-      }, 1000)
+    // 下拉刷新
+    async onRefresh () {
+      // 下拉刷新应该发送最新的时间戳
+      const data = await getArticles({
+        channel_id: this.channel_id,
+        timestamp: Date.now() // 永远传最新的时间戳
+      })
+      // 手动的关闭 下拉刷新的状态
+      this.downLoading = false
+      // 需要判断 最新的时间戳能否换来的数据啊  如果能换来数据 把新数据整个替换旧数据 如果不能  就告诉大家 暂时没有更新
+      if (data.results.length) {
+        // 如果有返回数据
+        // 需要将整个的articles替换
+        this.articles = data.results // 历史数据全部被覆盖
+        // 此时你 已经之前的全部数据覆盖了 假如 你之前把数据拉到了低端 也就意味着 你之前的finished已经为true了
+        if (data.pre_timestamp) {
+          // 因为下拉刷新 换来了一拨新的数据 里面 又有历史时间戳
+          this.finished = false // 重新唤醒列表 让列表可以继续上拉加载
+          this.timestamp = data.pre_timestamp // 记录历史时间戳给变量
+        }
+        this.successText = `更新了${data.results.length}条数据`
+      } else {
+        // 如果换不来新数据
+        this.successText = '当前已经是最新了'
+      }
+
+      // setTimeout(() => {
+      //   // 下拉刷新 表示要读取最新的数据 而且最新的数据要添加到数据头部
+      //   const arr = Array.from(
+      //     Array(2),
+      //     (value, index) => '追加' + (index + 1)
+      //   )
+      //   // 数组添加到头部
+      //   this.articles.unshift(...arr)
+      //   // 手动关闭正在加载的状态
+      //   this.downLoading = false
+      //   this.successText = `更新了${arr.length}条数据`
+      // }, 1000)
     }
   }
 }
