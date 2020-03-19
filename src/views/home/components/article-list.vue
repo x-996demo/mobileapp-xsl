@@ -96,7 +96,7 @@ export default {
       //   // 添加完数据 需要手动的关掉 loading
       //   this.upLoading = false
       // }
-
+      await this.$sleep(2000)
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() }) // this.channel_id指的是 当前的频道id
       //  获取内容
       this.articles.push(...data.results) // 将数据追加到队尾
