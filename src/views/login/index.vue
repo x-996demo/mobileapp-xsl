@@ -1,16 +1,18 @@
 <template>
-   <div class='container'>
-    <!-- 搜索组件一级路由   返回上一个页面-->
+    <div class='container'>
+    <!-- 导航 显示返回箭头-->
     <!-- click-left点击左侧事件 -->
-    <!-- $router.go(-1) 和$router.back()-->
-    <van-nav-bar left-arrow title='登录' @click-left="$router.back()"></van-nav-bar>
-     <!-- 外层需要用cell-group组件来包裹提供 边框 -->
+    <!-- $router.go(-1) $router.back() -->
+    <van-nav-bar title='登录'  left-arrow @click-left="$router.back()"></van-nav-bar>
+    <!-- 登录布局 -->
+    <!-- 外层需要用cell-group组件来包裹提供 边框 -->
     <van-cell-group>
         <!-- 登录手机号 -->
         <!-- v-model 有一个修饰符 trim(可以帮助我们自动去除空格) -->
+        <!-- input  和 blur事件都可以 -->
           <van-field @blur="checkMobile" :error-message="errorMessage.mobile" v-model.trim="loginForm.mobile" label="手机号"  placeholder="请输入手机号"></van-field>
         <!-- 验证码 -->
-          <van-field :error-message="errorMessage.code" v-model.trim="loginForm.code" label="验证码"  placeholder="请输入验证码">
+          <van-field @blur="checkCode" :error-message="errorMessage.code"  v-model.trim="loginForm.code" label="验证码"  placeholder="请输入验证码">
             <!-- 插槽内容 -->
               <van-button slot="button" size="small" type="primary">发送验证码</van-button>
           </van-field>
@@ -18,33 +20,36 @@
     <!-- 登录按钮 -->
     <div class='login-box'>
       <van-button @click="login" type="info" round size="small" block>登录</van-button>
-    <!-- 导航 -->
     </div>
   </div>
 </template>
 
 <script>
+// 引入 login方法
+// import * as user from '@/api/user'
+// user.login
 import { login } from '@/api/user'
-import { mapMutations } from 'vuex'
+import { mapMutations } from 'vuex' // 辅助函数 可以把mutations方法映射到methods方法中
 export default {
   data () {
     return {
+      // 表单数据
       loginForm: {
         mobile: '13911111111', // 手机号
         code: '246810' // 验证码
       },
-      // 此处显示设置的信息
+      // 此对象专门放置消息
       errorMessage: {
-        mobile: '', // 手机的错误信息
-        code: ''// 验证码的错误信息
-
+        mobile: '', // 手机的错误消息
+        code: '' // 验证码的错误消息
       }
     }
   },
   methods: {
-    ...mapMutations(['updateUser']), // 可以导入需要的方法
+    ...mapMutations(['updateUser']), // 可以导入需要的方法  直接把updateUser方法映射到当前的methods方法中
+    // 定义检查手机号方法
     checkMobile () {
-      //  获取手机号 判断 是否为空  满足手机号的格式
+    //  获取手机号 判断 是否为空  满足手机号的格式
       if (!this.loginForm.mobile) {
         // 表示为空
         this.errorMessage.mobile = '手机号不能为空'
@@ -98,14 +103,14 @@ export default {
           this.$router.push(redirectUrl || '/') // 短路表达式
         } catch (error) {
           // 提示消息 提示用户 告诉用户登录失败
-          this.$notify({ message: '用户名或者验证码错误', duration: 800 })
+          // this.$notify({ message: '用户名或者验证码错误', duration: 800 })
+          this.$gnotify({ message: '用户名或者验证码错误' })
           // 这里我们要抖一个小机灵
         }
       }
     }
   }
 }
-
 </script>
 
 <style>

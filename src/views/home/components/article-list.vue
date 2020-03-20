@@ -96,10 +96,18 @@ export default {
       //   // 添加完数据 需要手动的关掉 loading
       //   this.upLoading = false
       // }
-      await this.$sleep(2000)
+
+      // 下面这么写 依然不能关掉加载状态 为什么 ? 因为关掉之后  检测机制  高度还是不够 还是会开启
+      // 如果你有数据 你应该 把数据到加到list中
+      // 如果想关掉
+      // setTimeout(() => {
+      //   this.finished = true // 表示 数据已经全部加载完毕 没有数据了
+      // }, 1000) // 等待一秒 然后关闭加载状态
+      await this.$sleep() // 人为控制了 请求的时间
+      // this.timestamp || Date.now()  如果有历史时间戳 用历史时间戳 否则用当前的时间戳
       const data = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() }) // this.channel_id指的是 当前的频道id
       //  获取内容
-      this.articles.push(...data.results) // 将数据追加到队尾
+      this.articles.push(...data.results) // 将数据追加到队尾  这里用...
       this.upLoading = false // 关闭加载状态
       // 将历史时间戳 给timestamp  但是 赋值之前有个判断 需要判断一个历史时间是否为0
       // 如果历史时间戳为 0 说明 此时已经没有数据了 应该宣布 结束   finished true
@@ -113,6 +121,7 @@ export default {
     },
     // 下拉刷新
     async onRefresh () {
+      await this.$sleep() // 人为控制了 请求的时间
       // 下拉刷新应该发送最新的时间戳
       const data = await getArticles({
         channel_id: this.channel_id,

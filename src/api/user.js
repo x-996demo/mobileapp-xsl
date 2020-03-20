@@ -1,11 +1,12 @@
-/**
+/******
  * 专门处理用户相关的请求
- */
+ *
+ * ****/
+import request from '@/utils/request' // 引入请求模块
+// request相当于  axios的一个实例 和axios 有同样的方法和属性
 /***
  * 登录方法
  * ***/
-import request from '@/untils/request'
-// request 相当于axios的一个实例和axios有同样的方法和属性
 export function login (data) {
   return request({
     //   配置选项

@@ -4,6 +4,7 @@
       <van-tabs>
          <!-- 内部需要放置子 标签  title值为当前显示的内容-->
          <!-- van-tab是vant组件的样式  -->
+         <!-- 拿到channels数据之后吧 应该做什么 -->
          <van-tab :title="item.name" v-for="item in channels" :key="item.id">
             <!-- 生成若干个单元格 -->
             <!-- 这里为什么叫scroll-wrapper  因为样式中对它进行了设置 -->
@@ -12,7 +13,9 @@
                 <van-cell title="标题" value="内容" :key="item" v-for="item in 20"></van-cell>
               </van-cell-group>
             </div> -->
-           <ArticleList :channel_id="item.id"></ArticleList>
+            <!-- 有多少个tab 就有多少个 article-list  相当于多个article-list实例-->
+            <!-- 需要将频道id传递给每一个列表组件  父 => 子 props -->
+             <ArticleList :channel_id="item.id"></ArticleList>
          </van-tab>
       </van-tabs>
       <!-- 在tabs下放置图标  编辑频道的图标 -->
@@ -32,23 +35,25 @@ export default {
   components: {
     ArticleList
   },
+  // 组件中为什么data是 返回一个新对象
   data () {
     return {
       channels: [] // 接收频道数据
     }
   },
   methods: {
-    async getMyChannels () {
-      const data = await getMyChannels()
-      this.channels = data.channels // 更新原来的channels
+    async  getMyChannels () {
+      const data = await getMyChannels() // 接收返回的数据结果
+      this.channels = data.channels // 将数据赋值给data中的数据
     }
   },
   created () {
+    // 直接获取频道数据
     this.getMyChannels()
   }
 }
 </script>
-<style lang="less" scoped>
+<style lang='less' scoped>
 .van-tabs {
   height: 100%;
   display: flex;

@@ -2,7 +2,7 @@
  * 处理文章模块的请求数据
  *
  * ***/
-import request from '@/untils/request'
+import request from '@/utils/request'
 
 /****
  * 获取文章推荐数据
