@@ -36,7 +36,7 @@
               <div class="info_box">
                 <span>{{ item.aut_name }}</span>
                 <span>{{ item.comm_count }}评论</span>
-                <span>{{ item.pubdate }}</span>
+                <span>{{ item.pubdate | relTime }}</span>
                 <span class="close">
                   <van-icon name="cross"></van-icon>
                 </span>
@@ -63,6 +63,11 @@ export default {
       timestamp: null // 定义一个时间戳属性 用来存储 历史时间戳
     }
   },
+  // filters: {
+  //   relTime () {
+  //     return '123'
+  //   }
+  // },
   //  props: ['channel_id'], // 字符串数组 接收方式 比较简单 易于上手
 
   // props 对象形式 可以约束传入的值 必填 传值类型

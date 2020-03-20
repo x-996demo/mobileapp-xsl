@@ -4,7 +4,8 @@ import router from './router'
 import '@/permission' // 权限拦截模式
 import store from './store'
 import Vant from 'vant' // 引入vant组件库
-import plugin from '@/utils/plugin' // 引入插件
+
+import plugin from '@/untils/plugin' // 引入插件 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  名字
 import 'vant/lib/index.less' // 引入vant组件的样式  这里改成less 因为我们想修改某些变量
 import '@/styles/index.less' // 引入自定义的全局样式  覆盖vant的样式
 import 'amfe-flexible'
