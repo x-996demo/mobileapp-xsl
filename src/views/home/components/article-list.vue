@@ -41,7 +41,8 @@
                 <!-- 叉号的显示 应该根据当前的登录状态来判断 -->
                 <!--原始方式  -->
                 <!-- <span class="close" v-if="$store.state.user.token"> -->
-                  <span @click="$emit('showAction')" class="close" v-if="user.token">
+                  <!-- 点击事件中触发一个 显示反馈的事件 传出 点击的文章id -->
+                  <span @click="$emit('showAction',item.art_id.toString())" class="close" v-if="user.token">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>

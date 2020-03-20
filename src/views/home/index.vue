@@ -45,7 +45,8 @@ export default {
   data () {
     return {
       channels: [], // 接收频道数据
-      showMoreAction: false // 控制反馈组件显示隐藏
+      showMoreAction: false, // 控制反馈组件显示隐藏
+      articleId: null // 定义一个值接收
     }
   },
   methods: {
@@ -54,9 +55,12 @@ export default {
       this.channels = data.channels // 将数据赋值给data中的数据
     },
     // 此方法 会在articlle-list 组件触发 showAction的啥时候触发
-    openAction () {
+    openAction (artId) {
       this.showMoreAction = true
       // alert(123)
+      // alert(artId)
+      // 应该把id存储起来
+      this.articleId = artId
     }
   },
   created () {
