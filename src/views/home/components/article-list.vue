@@ -23,6 +23,7 @@
               <!-- 三图图片 -->
               <div class="img_box" v-if="item.cover.type === 3">
                 <!-- 图片组件用的是 vant的组件库中的图片组件 需要使用该组件 进行图片的懒加载 -->
+                <!-- lazy-load表示 该图片组件 会进行 懒加载 也就是只有当前屏幕出现的之后 才去加载对应的图片 -->
                 <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[0]" />
                 <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[1]" />
                 <van-image lazy-load class="w33" fit="cover" :src="item.cover.images[2]" />
@@ -38,11 +39,12 @@
                 <span>{{ item.comm_count }}评论</span>
                 <!-- 使用过滤器 -->
                 <span>{{ item.pubdate | relTime }}</span>
-                <!-- 叉号的显示 应该根据当前的登录状态来判断 -->
-                <!--原始方式  -->
+                <!-- 此叉号的显示 应该根据当前的登录状态来判断 如果登录了 可以显示 如果没有登录 不显示 -->
+                <!-- 最原始方式 -->
                 <!-- <span class="close" v-if="$store.state.user.token"> -->
-                  <!-- 点击事件中触发一个 显示反馈的事件 传出 点击的文章id -->
-                  <span @click="$emit('showAction',item.art_id.toString())" class="close" v-if="user.token">
+               <!-- 辅助函数的形式 -->
+               <!-- @事件名="逻辑处理"  点击事件中触发一个 显示反馈的事件 传出 点击的文章id-->
+               <span @click="$emit('showAction', item.art_id.toString())" class="close" v-if="user.token">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
@@ -56,9 +58,34 @@
 
 <script>
 // 引入获取文章的模块
-import { getArticles } from '@/api/articles'
 import { mapState } from 'vuex'
+import { getArticles } from '@/api/articles'
+import eventBus from '@/utils/eventbus'
 export default {
+  // 初始化函数
+  created () {
+    // 监听删除文章事件
+    // 相当于 有多少个实例 就有多少个监听
+    // delAriticle  => 假如有四个实例  4个函数
+    eventBus.$on('delArticle', (artId, channelId) => {
+      // 这个位置 每个组件实例都会触发
+      // 这里要判断一下 传递过来的频道是否等于 自身的频道
+      if (channelId === this.channel_id) {
+        // 说明当前的这个article-list实例 就是我们要去删除数据的实例
+        const index = this.articles.findIndex(item => item.art_id.toString() === artId)
+        // 通过id 查询对应的文章数据所在的下标
+        if (index > -1) {
+          // 因为下标从0开始 所以应该大于-1
+          this.articles.splice(index, 1) // 删除对应下标的数据
+        }
+        // 但是 如果你一直删除 就会将 列表数据都删光 并不会触发 load事件
+        if (this.articles.length === 0) {
+          //  说明你把数据给删光了
+          this.onLoad() // 手动的触发onload事件 给页面加数据
+        }
+      }
+    })
+  },
   computed: {
     ...mapState(['user']) // 将user对象映射到计算属性中
   },
@@ -72,11 +99,6 @@ export default {
       timestamp: null // 定义一个时间戳属性 用来存储 历史时间戳
     }
   },
-  // filters: {
-  //   relTime () {
-  //     return '123'
-  //   }
-  // },
   //  props: ['channel_id'], // 字符串数组 接收方式 比较简单 易于上手
 
   // props 对象形式 可以约束传入的值 必填 传值类型
