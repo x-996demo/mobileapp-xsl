@@ -1,5 +1,5 @@
 <template>
-  <div class="channel-edit">
+    <div class="channel-edit">
       <!-- 我的频道 -->
     <div class="channel">
       <div class="tit">
@@ -8,14 +8,20 @@
         <van-button v-if="!editing" @click="editing=true" size="mini" type="info" plain>编辑</van-button>
         <van-button v-else @click="editing=false" size="mini" type="danger" plain>完成</van-button>
       </div>
+      <!-- 我的频道循环选项 -->
       <van-grid class="van-hairline--left">
-        <van-grid-item v-for="index in 8" :key="index">
-          <span class="f12">频道{{index}}</span>
-          <van-icon class="btn" name="cross"></van-icon>
+          <!-- 循环渲染我的频道 -->
+        <van-grid-item v-for="(item,index) in channels" :key="item.id">
+          <span class="f12">{{ item.name }}</span>
+          <!--叉号标签 应该 在进入编辑状态时显示 应该在 退出编辑状态时不显示 -->
+          <!-- 因为第一个永远不显示 所以说条件应该加一个 不等于0 -->
+          <van-icon v-if="index!==0 && editing" class="btn" name="cross"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>
     <!-- 可选频道 -->
+    <!-- 我的频道的数据 是 当前用户自己的频道(在登录情况下用户自己的频道, 匿名情况下自己的频道 ) -->
+    <!-- 可选频道 全部的频道 - 我的频道 -->
     <div class="channel">
       <div class="tit">可选频道：</div>
       <van-grid class="van-hairline--left">
@@ -33,6 +39,13 @@ export default {
   data () {
     return {
       editing: false
+    }
+  },
+  props: {
+    channels: {
+      required: true, // 比传
+      type: Array,
+      default: () => []
     }
   }
 }
