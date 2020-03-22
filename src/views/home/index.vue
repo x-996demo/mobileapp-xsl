@@ -21,7 +21,7 @@
          </van-tab>
       </van-tabs>
       <!-- 在tabs下放置图标  编辑频道的图标 -->
-      <span class="bar_btn"  @click="showChannelEdit=true">
+      <span class="bar_btn" @click="showChannelEdit = true">
         <!-- 放入图标 vant图标 -->
          <van-icon name='wap-nav'></van-icon>
       </span>
@@ -34,11 +34,16 @@
         <!-- $event 是事件参数 在h5标签中 dom元素的事件参数  自定义事件中$event 就是自定义事件传出的第一个参数 -->
         <MoreAction @dislike="dislikeOrReport('dislike')" @report="dislikeOrReport('report',$event)" />
       </van-popup>
-      <!-- 频道编辑组件 放在 弹出面板组件 -->
-      <van-action-sheet :round="false" title="编辑频道" v-model="showChannelEdit">
-        <!-- 此时将父组件数据 传递给子组件 -->
-      <channel-edit :channels="channels"></channel-edit>
- </van-action-sheet>
+      <!-- 频道编辑组件 放在 弹出面板的组件 -->
+      <van-action-sheet :round="false" v-model="showChannelEdit" title="编辑频道">
+          <!-- 放置频道编辑组件 -->
+          <!-- 此时将父组件的数据 传递给了 子组件 -->
+          <ChannelEdit @addChannel="addChannel"
+            @delChannel="delChannel"
+            :activeIndex="activeIndex"
+           @selectChannel="selectChannel"
+            :channels="channels"  ></ChannelEdit>
+      </van-action-sheet>
   </div>
 </template>
 
@@ -46,7 +51,7 @@
 // @ is an alias to /src
 import ArticleList from './components/article-list'
 import MoreAction from './components/more-action'
-import { getMyChannels } from '@/api/channels'
+import { getMyChannels, delChannel, addChannel } from '@/api/channels'
 import { dislikeArticle, reportArticle } from '@/api/articles' // 不感兴趣
 import eventbus from '@/utils/eventbus' // 公共事件处理器
 import ChannelEdit from './components/channel-edit' // 引入编辑频道组件
@@ -62,13 +67,49 @@ export default {
       showMoreAction: false, // 是否显示弹层 默认不显示组件
       articleId: null, // 用来接收 点击的文章的id
       activeIndex: 0, // 当前默认激活的页面0
-      showChannelEdit: false // 是否显示弹框
+      showChannelEdit: false // 是否显示频道编辑组件  默认不显示
     }
   },
   methods: {
+    // 删除频道的方法
+    async delChannel (id) {
+      // 此时应该先调用api
+      try {
+        await delChannel(id) // 调用api方法  此时只是删除了 缓存中的数据
+        // 如果此时成功的resolve了 我们 应该去移除 当前data中的数据
+        const index = this.channels.findIndex(item => item.id === id) // 找到对应的索引
+        // 找到对应的索引之后
+        // 要根据当前删除的索引 和 当前激活的索引的 关系 来 决定 当前激活索引是否需要改变
+        if (index <= this.activeIndex) {
+          //  如果你删除的索引 是在当前激活索引之前的 或者等于当前激活索引的
+          // 此时就要把激活索引 给往前挪一位
+          this.activeIndex = this.activeIndex - 1
+        }
+        this.channels.splice(index, 1) // 删除对应的索引频道
+      } catch (error) {
+        this.$gnotify({ message: '删除频道失败' })
+      }
+    },
+    // 添加频道的方法
+    async addChannel (channel) {
+      // 这里需要 调用api 将频道写入缓存 成功之后 要将 该频道添加到 data数据
+      await addChannel(channel) // 传入参数 写入缓存
+      this.channels.push(channel)// 将添加的channel添加到 data中的channels中
+    },
     async  getMyChannels () {
       const data = await getMyChannels() // 接收返回的数据结果
       this.channels = data.channels // 将数据赋值给data中的数据
+    },
+    //  当子组件触发 selectChannel时 触发该方法
+    // selectChannel (id) {
+    //   // 拿到id之后  应该找到id所对应的频道的索引
+    //   const index = this.channels.findIndex(item => item.id === id) // 获取索引
+    //   this.activeIndex = index // 将对应频道的索引 设置给当前激活的 标签
+    //   this.showChannelEdit = false // 关闭弹层
+    // },
+    selectChannel (index) {
+      this.activeIndex = index // 将对应频道的索引 设置给当前激活的 标签
+      this.showChannelEdit = false // 关闭弹层
     },
     // 此方法 会在article-list组件触发 showAction的时候 触发
     openAction (artId) {
@@ -132,7 +173,7 @@ export default {
 }
 </script>
 <style lang='less' scoped>
-// 处理面板的样式
+// 处理弹出编辑面板的样式
 .van-action-sheet {
   max-height: 100%;
   height: 100%;
